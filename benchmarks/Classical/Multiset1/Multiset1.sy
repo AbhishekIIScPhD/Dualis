@@ -1,0 +1,21 @@
+(set-logic LIA)
+
+(synth-fun emplace ((v Int) (countv Int) (len Int) (countv1 Int) (len1 Int)) Bool ((Start Bool) (Expr Int)) ((Start Bool ((<= Expr Expr)(>= Expr Expr)(= Expr Expr)(and Start Start)(or Start Start)(not Start)))(Expr Int ((+ Expr Expr)(- Expr Expr) v countv len countv1 len1))))
+(synth-fun inv1 ((i Int) (N Int) (v Int) (countv Int) (len Int)) Bool ((Start Bool) (Expr Int)) ((Start Bool ((<= Expr Expr)(>= Expr Expr)(= Expr Expr)(and Start Start)(or Start Start)(not Start)))(Expr Int ((+ Expr Expr)(- Expr Expr) i N v countv len))))
+
+(declare-var N Int)
+(declare-var v Int)
+(declare-var i Int)
+(declare-var i1 Int)
+(declare-var countv Int)
+(declare-var countv1 Int)
+(declare-var len Int)
+(declare-var len1 Int)
+
+(constraint (=> (and (= v -10) (= countv 1) (= len 1) (= countv1 2) (= len1 2)) (emplace v countv len countv1 len1)))
+(constraint (=> (and (= v -10) (= countv 0) (= len 0) (= countv1 1) (= len1 1)) (emplace v countv len countv1 len1)))
+(constraint (=> (and (> N 0) (= i 0) (= countv 0) (= len 0)) (inv1 i N v countv len)))
+(constraint (=> (and (inv1 i N v countv len) (< i N) (emplace v countv len countv1 len1) (= i1 (+ i 1))) (inv1 i1 N v countv1 len1)))
+(constraint (=> (and (inv1 i N v countv len) (not (< i N))) (and (= len N) (= countv N))))
+
+(check-synth)

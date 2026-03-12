@@ -1,0 +1,16 @@
+2
+inv 2 0
+0 len
+1 minDiff
+
+addStockOrder 6 4
+0 stock
+1 order
+2 len
+3 len1
+4 minDiff
+5 minDiff1
+len1 - len
+minDiff1 - minDiff
+minDiff1 - stock + order
+minDiff - stock + order

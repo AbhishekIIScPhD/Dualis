@@ -1,0 +1,45 @@
+3
+insert 9 10
+0 i
+1 max
+2 max1
+3 min
+4 min1
+5 len
+6 len1
+7 noDup
+8 noDup1
+max1 - i
+i - max1
+max1 - max
+max - max1
+min1 - i
+i - min1
+min1 - min
+min - min1
+len1 - len
+len - len1
+
+inv 6 6
+0 i
+1 max
+2 min
+3 len
+4 noDup
+5 N
+i - N
+N - i
+len - i
+i - len
+max - i
+i - max
+
+search 6 2
+0 data
+1 max
+2 min
+3 len
+4 noDup
+5 ret1
+data - len
+len - data

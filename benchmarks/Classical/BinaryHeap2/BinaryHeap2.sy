@@ -1,0 +1,23 @@
+(set-logic LIA)
+
+(synth-fun insert ((i Int) (isHeap Int) (len Int) (isHeap1 Int) (len1 Int)) Bool ((Start Bool) (Expr Int)) ((Start Bool ((<= Expr Expr)(>= Expr Expr)(= Expr Expr)(and Start Start)(or Start Start)(not Start)))(Expr Int ((+ Expr Expr)(- Expr Expr) i isHeap len isHeap1 len1))))
+(synth-fun deleteMin ((len Int) (isHeap Int) (len1 Int) (ret1 Int) (isHeap1 Int)) Bool ((Start Bool) (Expr Int)) ((Start Bool ((<= Expr Expr)(>= Expr Expr)(= Expr Expr)(and Start Start)(or Start Start)(not Start)))(Expr Int ((+ Expr Expr)(- Expr Expr) len isHeap len1 ret1 isHeap1))))
+(synth-fun downHeap ((isHeap1 Int)) Bool ((Start Bool) (Expr Int)) ((Start Bool ((<= Expr Expr)(>= Expr Expr)(= Expr Expr)(and Start Start)(or Start Start)(not Start)))(Expr Int ((+ Expr Expr)(- Expr Expr) isHeap1))))
+(synth-fun inv1 ((i Int) (N Int) (isHeap Int) (len Int)) Bool ((Start Bool) (Expr Int)) ((Start Bool ((<= Expr Expr)(>= Expr Expr)(= Expr Expr)(and Start Start)(or Start Start)(not Start)))(Expr Int ((+ Expr Expr)(- Expr Expr) i N isHeap len))))
+
+(declare-var N Int)
+(declare-var i Int)
+(declare-var i1 Int)
+(declare-var isHeap Int)
+(declare-var isHeap1 Int)
+(declare-var isHeap2 Int)
+(declare-var isHeap3 Int)	
+(declare-var len Int)
+(declare-var len1 Int)
+(declare-var ret1 Int)
+
+(constraint (=> (and (> N 0) (= i1 0) (= isHeap1 1) (= len1 0)) (inv1 i1 N isHeap1 len1)))
+(constraint (=> (and (inv1 i N isHeap len) (or (= isHeap 1) (= isHeap 0)) (< i N) (insert i isHeap len isHeap1 len1) (= i1 (+ i 1))) (inv1 i1 N isHeap1 len1)))
+(constraint (=> (and (inv1 i N isHeap len) (or (= isHeap 1) (= isHeap 0)) (not (< i N)) (deleteMin len isHeap len1 ret1 isHeap1) (or (= isHeap1 1) (= isHeap1 0)) (downHeap isHeap2) (or (= isHeap2 1) (= isHeap2 0))) (= isHeap2 1)))
+
+(check-synth)

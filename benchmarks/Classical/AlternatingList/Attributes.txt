@@ -1,0 +1,18 @@
+2
+push 5 3
+0 val
+1 top
+2 len
+3 top1
+4 len1
+len1 - len
+top1 - val
+top1 - top
+
+inv 3 3
+0 top
+1 len
+2 flag
+top - len
+top - flag
+flag - top

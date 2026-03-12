@@ -1,0 +1,122 @@
+7
+insert 9 11
+0 v
+1 len
+2 containsv
+3 min
+4 max
+5 len1
+6 containsv1
+7 min1
+8 max1
+len1 - len
+min1 - min
+max1 - max
+min1 - v
+v - min1
+max1 - v
+v - max1
+v - min
+min - v
+v - max
+max - v
+
+insert1 9 11
+0 v
+1 len
+2 containsv
+3 min
+4 max
+5 len1
+6 containsv1
+7 min1
+8 max1
+len1 - len
+min1 - min
+max1 - max
+min1 - v
+v - min1
+max1 - v
+v - max1
+v - min
+min - v
+v - max
+max - v
+
+erase 9 7
+0 v
+1 len
+2 containsv
+3 min
+4 max
+5 len1
+6 containsv1
+7 min1
+8 max1
+len1 - len
+len - len1
+min1 - min
+min - min1
+max1 - max
+max - max1
+v - min
+
+reserve 3 4
+0 len
+1 N
+2 len1
+len1 - N
+N - len1
+len1 - len - N
+N + len - len1
+
+inv1 6 9
+0 i
+1 N
+2 len
+3 containsv
+4 min
+5 max
+len - i
+i - len
+N - i
+i - N
+N - len
+len - N
+max - i
+i - max
+max - len
+
+inv2 6 8
+0 i
+1 N
+2 len
+3 containsv
+4 min
+5 max
+len + i - N
+N - i - len
+min - i
+i - min
+max - N
+N - max
+N - i
+i - N
+
+inv3 6 10
+0 i
+1 N
+2 len
+3 containsv
+4 min
+5 max
+len - i
+i - len
+min - N
+N - min
+max - N - i
+i + N - max
+max - min - len
+len + min - max
+N - i
+i - N

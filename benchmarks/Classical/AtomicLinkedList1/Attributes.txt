@@ -1,0 +1,40 @@
+4
+insertHead 3 6
+0 k
+1 len
+2 len1
+len1 - len
+len - len1
+k - len
+len - k
+len1 - k
+k - len1
+
+popHead 3 2
+0 len
+1 ret1
+2 len1
+len - len1
+len1 - len
+
+inv1 3 4
+0 k
+1 N
+2 len
+k - len
+len - k
+N - k
+k - N
+
+inv2 3 8
+0 len
+1 items_processed
+2 N
+len + items_processed - N
+N - len - items_processed
+len
+items_processed
+N - len
+len - N
+N - items_processed
+items_processed - N

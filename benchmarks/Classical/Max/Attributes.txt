@@ -1,0 +1,15 @@
+2
+inv 2 2
+0 lmax
+1 gmax
+lmax - gmax
+gmax - lmax
+
+append 3 4
+0 v
+1 lmax
+2 lmax1
+lmax1 - v
+v - lmax1
+lmax - lmax1
+lmax1 - lmax

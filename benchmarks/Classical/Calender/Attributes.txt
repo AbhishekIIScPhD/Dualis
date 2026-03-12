@@ -1,0 +1,24 @@
+2
+insert 6 10
+0 len
+1 len1
+2 ev1
+3 ev2
+4 maxDiff
+5 maxDiff1
+ev1 - ev2
+ev2 - ev1
+len - len1
+len1 - len
+maxDiff1 - maxDiff
+maxDiff - maxDiff1
+maxDiff1 - ev1 + ev2
+ev1 - ev2 - maxDiff1
+ev1 - ev2 - maxDiff
+maxDiff - ev1 + ev2
+
+inv 2 2
+0 len
+1 maxDiff
+len - maxDiff
+maxDiff - len

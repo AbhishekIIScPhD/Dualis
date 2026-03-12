@@ -1,0 +1,67 @@
+4
+insertHead 7 11
+0 k
+1 min
+2 max
+3 len
+4 min1
+5 max1
+6 len1
+len - k
+k - len
+len1 - k
+len1 - len
+len - len1
+min1 - k
+k - min1
+max1 - k
+k - max1
+min1 - min
+max1 - max
+
+popHead 7 8
+0 min
+1 max
+2 len
+3 min1
+4 max1
+5 len1
+6 ret1
+len1 - len
+len - len1
+ret1 - max1
+max1 - ret1
+ret1 - len1
+len1 - ret1
+ret1 - len
+len - ret1
+
+
+inv1 5 7
+0 k
+1 N
+2 min
+3 max
+4 len
+k - N
+N - k
+len - k
+k - len
+max - k
+k - max
+len - N
+
+inv2 5 8
+0 min
+1 max
+2 len
+3 items_processed
+4 ret
+ret - len
+len - ret
+max - len - items_processed
+items_processed + len - max
+len + items_processed
+len - items_processed
+ret - max
+max - ret

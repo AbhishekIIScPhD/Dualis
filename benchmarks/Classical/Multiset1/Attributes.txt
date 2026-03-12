@@ -1,0 +1,25 @@
+2
+emplace 5 2
+0 v
+1 countv
+2 len
+3 countv1
+4 len1
+countv1 - countv
+len1 - len
+
+inv1 5 9
+0 i
+1 N
+2 v
+3 countv
+4 len
+i - countv
+countv - i
+i - len
+len - i
+countv - len
+len - countv
+N - i
+N - countv
+N - len

@@ -1,0 +1,49 @@
+2
+emplace 8 20
+0 k
+1 v
+2 countko
+3 countkt
+4 len
+5 countko1
+6 countkt1
+7 len1
+len1 - len
+len - len1
+countko1 - countko
+countko - countko1
+countkt1 - countkt
+countkt - countkt1
+countko1 + countkt1 - countko - countkt
+countko + countkt - countko1 - countkt1
+len1 - countko1
+countko1 - len1
+len - countko
+countko - len
+len1 - countkt1
+countkt1 - len1
+len - countkt
+countkt - len
+len1 - countko1 - countkt1
+countko1 + countkt1 - len1
+len - countko - countkt
+countko + countkt - len
+
+inv1 5 12
+0 i
+1 N
+2 countko
+3 countkt
+4 len
+i - countko
+countko - i
+i - len
+len - i
+countko - len
+len - countko
+N - i
+i - N
+N - countko
+countko - N
+N - len
+len - N

@@ -1,0 +1,30 @@
+3
+inv 3 0
+0 len
+1 minPrio
+2 maxPacketSize
+
+append 8 5
+0 prio
+1 packetSize
+2 len
+3 minPrio
+4 maxPacketSize
+5 len1
+6 minPrio1
+7 maxPacketSize1
+len1 - len
+minPrio1 - minPrio
+minPrio - minPrio1
+maxPacketSize1 - maxPacketSize
+maxPacketSize1 - packetSize
+
+processQueue 6 2
+0 len
+1 minPrio
+2 maxPacketSize
+3 len1
+4 minPrio1
+5 maxPacketSize1
+minPrio1 - minPrio
+maxPacketSize1 - maxPacketSize

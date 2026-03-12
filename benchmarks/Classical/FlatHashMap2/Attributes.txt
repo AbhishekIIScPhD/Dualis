@@ -1,0 +1,40 @@
+3
+inv1 4 4
+0 i
+1 N
+2 len
+3 containsk
+len - i
+i - len
+N - i
+N - len
+
+insert 6 12
+0 k
+1 v
+2 len
+3 containsk
+4 len1
+5 containsk1
+k - v
+v - k
+k - len
+len - k
+v - len
+len - v
+len1 - len
+len - len1
+len1 - k
+k - len1
+len1 - v
+v - len1
+
+remove_none 4 4
+0 len
+1 remove_count
+2 len1
+3 remove_count1
+len1 - len
+len - len1
+remove_count1 - remove_count
+remove_count - remove_count1

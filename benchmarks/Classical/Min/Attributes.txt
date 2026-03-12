@@ -1,0 +1,14 @@
+inv 2 2
+0 lmin
+1 gmin
+lmin - gmin
+gmin - lmin
+
+append 3 4
+0 v
+1 lmin
+2 lmin1
+lmin1 - v
+v - lmin1
+lmin - lmin1
+lmin1 - lmin

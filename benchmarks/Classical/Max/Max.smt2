@@ -1,0 +1,15 @@
+(declare-var lmax Int)
+(declare-var lmax1 Int)
+(declare-var gmax Int)
+(declare-var v Int)
+(declare-rel append (Int Int Int))
+(declare-rel inv (Int Int))
+(declare-rel fail ())
+
+(define-fun MIN () Int -129)
+
+(rule (=> (and (= lmax MIN) (= gmax MIN)) (inv lmax gmax)))
+(rule (=> (and (inv lmax gmax) (append v lmax lmax1) (< gmax v)) (inv lmax1 v)))
+(rule (=> (and (inv lmax gmax) (append v lmax lmax1) (not (< gmax v))) (inv lmax1 gmax)))
+(rule (=> (and (inv lmax gmax) (not (= gmax lmax))) fail))
+(query fail :print-certificate true)

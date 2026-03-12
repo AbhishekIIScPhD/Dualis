@@ -1,0 +1,54 @@
+2
+inv1 6 11
+0 i
+1 N
+2 isPresent
+3 min
+4 max
+5 len
+i - N
+N - i
+len - isPresent
+isPresent - len
+min - max
+max - min
+min - len
+len - min
+i - len
+len - i
+min - i
+
+insert 9 24
+0 v
+1 isPresent
+2 min
+3 max
+4 len
+5 isPresent1
+6 min1
+7 max1
+8 len1
+len1 - len
+min1 - min
+max1 - max
+isPresent1 - isPresent
+v - min1
+min1 - v
+v - max1
+max1 - v
+v - len1
+len1 - v
+v - isPresent1
+isPresent1 - v
+v - min
+min - v
+v - max
+max - v
+len - isPresent
+isPresent - len
+min1 - max1
+max1 - min1
+min1 - len1
+len1 - min1
+min - max
+max - min

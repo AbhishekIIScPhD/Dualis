@@ -1,0 +1,40 @@
+#include "../../FuzzImpl/FlatHashMapImpl.h" // MAPPING: Path changed to FuzzImpl
+
+int main(int argc, char *argv[]) {
+    bool fuzzer_mode = getenv("FUZZING") != nullptr;
+
+    std::string filePath = argv[1];
+    
+
+    std::ofstream ceFile(filePath, std::ios::app);
+
+    while (__AFL_LOOP(10000)) {
+        std::vector<uint8_t> fuzzBuf(4096);
+        ssize_t fuzzLen = read(0, fuzzBuf.data(), fuzzBuf.size());
+        if (fuzzLen <= 3) {
+            continue; 
+        }
+	
+        FlatHashMap fhm;
+        init(fhm, fuzzBuf, fuzzLen - 2);
+
+        DECLARE_FHM_ERASE_STATE_VARS();
+
+        READ_INT8_FROM_FUZZBUF(fuzzBuf, fuzzLen - 2, k);
+        READ_UINT8_FROM_FUZZBUF(fuzzBuf, fuzzLen - 1, flag);
+
+        FHM_ERASE_WITH_STATE(fhm, k, flag%2);
+        
+        bool expr = (true);
+
+        if (!expr) {
+            LOG_FHM_ERASE_STATE(ceFile, fuzzer_mode);
+        }
+        
+        assert(expr);
+        fuzzBuf.clear();
+    }
+
+    ceFile.close();
+    return 0;
+}

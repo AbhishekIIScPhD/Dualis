@@ -1,0 +1,18 @@
+(declare-var len Int)
+(declare-var len1 Int)
+(declare-var minDiff Int)
+(declare-var minDiff1 Int)
+(declare-var stock Int)
+(declare-var order Int)
+(declare-rel addStockOrder (Int Int Int Int Int Int))
+(declare-rel inv (Int Int))
+(declare-rel fail ())
+(define-fun MAX () Int 128)
+(define-fun MIN () Int -129)
+
+(rule (=> (and (= len 0) (= minDiff MAX)) (inv len minDiff)))
+(rule (=> (and (inv len minDiff) (and (>= stock 0) (>= order 0) (<= order stock)) (addStockOrder stock order len minDiff len1 minDiff1)) (inv len1 minDiff1)))
+(rule (=> (and (inv len minDiff) (not (and (>= stock 0) (>= order 0) (<= order stock)))) (inv len minDiff)))
+(rule (=> (and (inv len minDiff) (not (=> (>= len 0) (>= minDiff 0)))) fail))
+
+(query fail :print-certificate true)

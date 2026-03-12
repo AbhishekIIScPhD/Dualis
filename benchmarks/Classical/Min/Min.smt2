@@ -1,0 +1,15 @@
+(declare-var lmin Int)
+(declare-var lmin1 Int)
+(declare-var gmin Int)
+(declare-var v Int)
+(declare-rel append (Int Int Int))
+(declare-rel inv (Int Int))
+(declare-rel fail ())
+
+(define-fun MAX () Int 128)
+
+(rule (=> (and (= lmin MAX) (= gmin MAX)) (inv lmin gmin)))
+(rule (=> (and (inv lmin gmin) (append v lmin lmin1) (> gmin v)) (inv lmin1 v)))
+(rule (=> (and (inv lmin gmin) (append v lmin lmin1) (not (> gmin v))) (inv lmin1 gmin)))
+(rule (=> (and (inv lmin gmin) (not (= gmin lmin))) fail))
+(query fail :print-certificate true)

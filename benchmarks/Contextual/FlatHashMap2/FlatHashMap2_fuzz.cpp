@@ -1,0 +1,68 @@
+#include "../../FuzzImpl/FlatHashMapImpl.h"
+
+int main(int argc, char *argv[]) {
+  bool fuzzer_mode = getenv("FUZZING") != nullptr;
+
+  if (argc < 2) {
+    std::cerr << "Error: Please provide a file path for logging." << std::endl;
+    return 1;
+  }
+  std::string filePath = argv[1];
+    
+  // Open log file in append mode
+  std::ofstream ceFile(filePath, std::ios::app);
+  if (!ceFile.is_open()) {
+    std::cerr << "Error: Unable to open log file." << std::endl;
+    return 1;
+  }
+
+  while (__AFL_LOOP(10000)) {
+    std::vector<uint8_t> fuzzBuf(4096);
+    ssize_t fuzzLen = read(0, fuzzBuf.data(), fuzzBuf.size());
+
+    if (fuzzLen <= 10) {
+      continue;
+    }
+
+    FlatHashMap fhm;
+
+    uint8_t N;
+    READ_UINT8_FROM_FUZZBUF(fuzzBuf, fuzzLen -1, N);
+        
+    for (int i = 0; i < N; ++i) {
+            
+      DECLARE_FHM_INSERT_STATE_VARS();
+      READ_UINT8_FROM_FUZZBUF(fuzzBuf, fuzzLen - 2, k);
+      READ_UINT8_FROM_FUZZBUF(fuzzBuf, fuzzLen - 3, v);
+      if (k == i && v == i){
+
+	FHM_INSERT_WITH_STATE(fhm, k, v);
+
+	bool expr_insert = (true); // From rapidcheck
+
+	if (!expr_insert) {
+	  LOG_FHM_INSERT_STATE(ceFile, fuzzer_mode);
+	}
+	// Map RC_ASSERT to assert
+	assert(expr_insert);
+      }
+    }
+
+    {
+      DECLARE_FHM_REMOVENONE_STATE_VARS();
+      FHM_REMOVENONE_WITH_STATE(fhm);
+
+      bool expr_remove_none = (true); // From rapidcheck
+        
+      if (!expr_remove_none) {
+	LOG_FHM_REMOVENONE_STATE(ceFile, fuzzer_mode);
+      }
+      assert(expr_remove_none); 
+    }
+        
+    fuzzBuf.clear();
+  }
+
+  ceFile.close();
+  return 0;
+}

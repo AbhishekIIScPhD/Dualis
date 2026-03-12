@@ -1,0 +1,30 @@
+3
+insert 5  8
+0 nexttime
+1 len
+2 len1
+3 min_ttw
+4 min_ttw1
+len - len1
+len1 - len
+min_ttw - min_ttw1
+min_ttw1 - min_ttw
+min_ttw - nexttime
+nexttime - min_ttw
+min_ttw1 - nexttime
+nexttime - min_ttw1
+
+choosenext 4 4
+0 len
+1 len1
+2 min_ttw
+3 min_ttw1
+len - len1
+len1 - len
+min_ttw - min_ttw1
+min_ttw1 - min_ttw
+
+inv 3 0
+0 nexttime
+1 len
+2 min_ttw

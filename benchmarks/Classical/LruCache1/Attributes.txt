@@ -1,0 +1,44 @@
+3
+insert_or_assign 10 8
+0 k
+1 v
+2 len
+3 mru
+4 size
+5 containsmru
+6 len1
+7 mru1
+8 containsmru1
+9 ret1
+len1 - len
+len - len1
+k - v
+v - k
+v - mru1
+mru1 - v
+len1 - size
+len - size
+
+find 3 2
+0 k
+1 containsk
+2 mru1
+mru1 - k
+k - mru1
+
+inv1 7 8
+0 i
+1 N
+2 len
+3 mru
+4 size
+5 containsmru
+6 containsk
+i - N
+N - i
+len - i
+i - len
+size - N
+N - size
+mru - i
+i - mru

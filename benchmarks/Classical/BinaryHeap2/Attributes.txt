@@ -1,0 +1,33 @@
+4
+inv1 4 4
+0 i
+1 N
+2 isHeap
+3 len
+len - i
+i - len
+i - N
+N - i
+
+insert 5 4
+0 i
+1 isHeap
+2 len
+3 isHeap1
+4 len1
+len1 - len
+len - len1
+isHeap1 - isHeap
+isHeap - isHeap1
+
+deleteMin 5 2
+0 len
+1 isHeap
+2 len1
+3 ret1
+4 isHeap1
+len1 - len
+len - len1
+
+downHeap 1 0
+0 isHeap2

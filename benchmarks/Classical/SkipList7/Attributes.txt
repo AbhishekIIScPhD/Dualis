@@ -1,0 +1,38 @@
+3
+inv1 6 6
+0 i
+1 N
+2 isPresent
+3 min
+4 max
+5 len
+i - len
+len - i
+max - min
+min - max
+N - i
+N - len
+
+insert 9 5
+0 v
+1 isPresent
+2 min
+3 max
+4 len
+5 isPresent1
+6 min1
+7 max1
+8 len1
+len1 - len
+min - min1
+v - min1
+max1 - max
+max1 - v
+
+lower_bound 4 2
+0 k
+1 min
+2 max
+3 lb_ret1
+lb_ret1 - k
+k - lb_ret1

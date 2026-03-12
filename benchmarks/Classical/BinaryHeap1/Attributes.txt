@@ -1,0 +1,80 @@
+5
+inv1 6 9
+0 i
+1 N
+2 isHeap
+3 min
+4 max
+5 len
+i - N
+N - i
+len - i
+i - len
+max - i
+i - max
+max - min
+len - max + min
+N - len
+
+insert 9 10
+0 i
+1 isHeap
+2 min
+3 max
+4 len
+5 isHeap1
+6 min1
+7 max1
+8 len1
+len1 - len
+len - len1
+min1 - i
+i - min1
+max1 - i
+i - max1
+min1 - min
+max1 - max
+isHeap - isHeap1
+isHeap1 - isHeap
+
+inv2 7 11
+0 d
+1 N
+2 min
+3 max
+4 len
+5 isHeap
+6 ret
+d - N
+N - d
+len - N + d
+N - d - len
+min - d
+d - min
+max - N
+N - max
+ret - d
+d - ret
+len - max + min
+
+deleteMin 9 8
+0 min
+1 max
+2 len
+3 isHeap
+4 min1
+5 max1
+6 len1
+7 ret1
+8 isHeap1
+len1 - len
+len - len1
+ret1 - min
+min - ret1
+min1 - min
+min - min1
+max1 - max
+max - max1
+
+downHeap 1 0
+0 isHeap2

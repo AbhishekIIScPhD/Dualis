@@ -1,0 +1,17 @@
+3
+inv 3 0
+0 inserted_blue
+1 bcount
+2 color
+
+push 3 1
+0 color
+1 bcount
+2 bcount1
+bcount1 - bcount
+
+push1 3 1
+0 color
+1 bcount
+2 bcount1
+bcount1 - bcount

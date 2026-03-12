@@ -1,0 +1,55 @@
+4
+insert 6 9
+0 k
+1 v
+2 len
+3 containsk
+4 len1
+5 containsk1
+k - v
+v - k
+k - len
+len - k
+len1 - len
+len1 - k
+k - len1
+len1 - v
+v - len1
+
+erase 5 3
+0 k
+1 len
+2 flag
+3 len1
+4 ret1
+k - ret1
+ret1 - k
+len - len1
+
+inv1 3 4
+0 i
+1 N
+2 len
+i - len
+len - i
+N - i
+N - len
+
+inv2 5 12
+0 i
+1 N
+2 len
+3 flag
+4 ret
+i - N
+N - i
+len - N
+N - len
+ret - N
+N - ret
+i - ret
+ret - i
+i - len
+len - i
+len + len + i - N - N
+N + N - len - len - i

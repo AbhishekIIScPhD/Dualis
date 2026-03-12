@@ -1,0 +1,20 @@
+3
+generateTokens 2 2
+0 b_size
+1 avai_tokens1
+avai_tokens1 - b_size
+b_size - avai_tokens1
+
+consume 3 2
+0 c_rate
+1 avai_tokens
+2 avai_tokens1
+avai_tokens - avai_tokens1 - c_rate
+avai_tokens1 - avai_tokens + c_rate
+
+inv1 4 1
+0 avai_tokens
+1 b_size
+2 c_rate
+3 consumed_tokens
+avai_tokens + consumed_tokens - b_size

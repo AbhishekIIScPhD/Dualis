@@ -1,0 +1,23 @@
+emplace 6 2
+0 k
+1 v
+2 countko
+3 len
+4 countko1
+5 len1
+countko1 - countko
+len1 - len
+inv1 4 9
+0 i
+1 N
+2 countko
+3 len
+i - countko
+countko - i
+i - len
+len - i
+countko - len
+len - countko
+N - i
+N - countko
+N - len

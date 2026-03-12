@@ -1,0 +1,27 @@
+inv 3 0
+0 len
+1 min
+2 max
+
+push 7 14
+0 val
+1 min
+2 len
+3 max
+4 min1
+5 len1
+6 max1
+len1 - len
+len - val
+len - min
+len - max
+len - min1
+len - max1
+val - min
+min - val
+val - max
+max - val
+min1 - val
+val - min1
+min1 - min
+min - min1

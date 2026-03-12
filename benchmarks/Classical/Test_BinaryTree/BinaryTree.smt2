@@ -1,0 +1,22 @@
+(declare-var isEmpty Int)
+(declare-var isEmpty1 Int)
+(declare-var min Int)
+(declare-var min1 Int)
+(declare-var n Int)
+(declare-var v Int)
+(declare-var ret1 Int)
+(declare-rel insert (Int Int Int Int Int))
+(declare-rel search (Int Int Int Int))
+(declare-rel inv (Int Int))
+(declare-rel fail ())
+(define-fun is_valid ((x Int)) Bool (or (= x 1) (= x 0)))
+(define-fun MAX () Int 128)
+(define-fun MIN () Int -129)
+
+
+(rule (=> (and (= isEmpty 1) (= min MAX) (= i 0)) (inv i min isEmpty)))
+(rule (=> (and (inv min isEmpty) (is_valid isEmpty) (or (= n 1) (= n 2)) (insert n min min1 isEmpty isEmpty1)) (inv min1 isEmpty1)))
+(rule (=> (and (inv min isEmpty) (is_valid isEmpty) (not (or (= n 1) (= n 2)))) (inv min isEmpty)))
+(rule (=> (and (inv min isEmpty) (is_valid isEmpty) (= v 1) (search v min isEmpty ret1) (= ret1 1)) fail))
+
+(query fail :print-certificate true)

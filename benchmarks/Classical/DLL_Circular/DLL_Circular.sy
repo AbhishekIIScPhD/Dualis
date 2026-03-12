@@ -1,0 +1,17 @@
+(set-logic LIA)
+
+(synth-fun push ((val Int) (max Int) (max1 Int)) Bool ((Start Bool) (Expr Int)) ((Start Bool ((<= Expr Expr)(>= Expr Expr)(= Expr Expr)(and Start Start)(or Start Start)(not Start)))(Expr Int ((+ Expr Expr)(- Expr Expr) val max max1))))
+(synth-fun inv ((val Int) (max Int)) Bool ((Start Bool) (Expr Int)) ((Start Bool ((<= Expr Expr)(>= Expr Expr)(= Expr Expr)(and Start Start)(or Start Start)(not Start)))(Expr Int ((+ Expr Expr)(- Expr Expr) val max))))
+
+(declare-var val Int)
+(declare-var val1 Int)
+(declare-var max Int)
+(declare-var max1 Int)
+
+(constraint (=> (and (= val 0) (= max 0)) (inv val max)))
+(constraint (=> (and (inv val max) (< val 3) (= val1 (+ val 1)) (push val1 max max1)) (inv val1 max1)))
+(constraint (=> (and (inv val max) (>= val 3) (push val max max1)) (inv val max1)))
+(constraint (=> (and (inv val max) (push val max max1)) (inv val max1)))
+(constraint (=> (inv val max) (and (>= max 0) (<= max 3))))
+
+(check-synth)

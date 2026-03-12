@@ -1,0 +1,49 @@
+insert 9 8
+0 v
+1 isPresent
+2 min
+3 max
+4 len
+5 isPresent1
+6 min1
+7 max1
+8 len1
+len1 - len
+len - len1
+min1 - v
+v - min1
+max1 - v
+v - max1
+min1 - min
+max1 - max
+
+remove 8 2
+0 k
+1 min
+2 max
+3 len
+4 min1
+5 max1
+6 len1
+7 ret1
+len1 - len
+len - len1
+
+inv1 6 9
+0 i
+1 N
+2 isPresent
+3 min
+4 max
+5 len
+i - N
+N - i
+len - i
+i - len
+min
+max - i
+i - max
+max - min
+len - max + min
+
+fail 0 0

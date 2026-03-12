@@ -1,0 +1,22 @@
+(set-logic LIA)
+
+(synth-fun pu ((N Int) (sl Int) (sl1 Int)) Bool ((Start Bool) (Expr Int)) ((Start Bool ((<= Expr Expr)(>= Expr Expr)(= Expr Expr)(and Start Start)(or Start Start)(not Start)))(Expr Int ((+ Expr Expr)(- Expr Expr) N sl sl1))))
+(synth-fun po ((sl Int) (sl1 Int)) Bool ((Start Bool) (Expr Int)) ((Start Bool ((<= Expr Expr)(>= Expr Expr)(= Expr Expr)(and Start Start)(or Start Start)(not Start)))(Expr Int ((+ Expr Expr)(- Expr Expr) sl sl1))))
+(synth-fun inv1 ((c Int) (N Int) (d Int) (sl Int)) Bool ((Start Bool) (Expr Int)) ((Start Bool ((<= Expr Expr)(>= Expr Expr)(= Expr Expr)(and Start Start)(or Start Start)(not Start)))(Expr Int ((+ Expr Expr)(- Expr Expr) c N d sl))))
+(synth-fun inv2 ((N Int) (d Int) (sl Int)) Bool ((Start Bool) (Expr Int)) ((Start Bool ((<= Expr Expr)(>= Expr Expr)(= Expr Expr)(and Start Start)(or Start Start)(not Start)))(Expr Int ((+ Expr Expr)(- Expr Expr) N d sl))))
+
+(declare-var c Int)
+(declare-var c1 Int)
+(declare-var n Int)
+(declare-var N Int)
+(declare-var d Int)
+(declare-var d1 Int)
+(declare-var sl Int)
+(declare-var sl1 Int)
+
+(constraint (=> (and (> N 0) (= c 0) (= d 0) (= sl 0)) (inv1 c N d sl)))
+(constraint (=> (and (inv1 c N d sl) (< c N) (pu N sl sl1) (= c1 (+ c 1))) (inv1 c1 N d sl1)))
+(constraint (=> (and (inv1 c N d sl) (not (< c N))) (inv2 N d sl)))
+(constraint (=> (and (inv2 N d sl) (not (= sl 0)) (po sl sl1) (= d1 (+ d 1))) (inv2 N d1 sl1)))
+(constraint (=> (and (inv2 N d sl) (= sl 0)) (= d N)))
+(check-synth)

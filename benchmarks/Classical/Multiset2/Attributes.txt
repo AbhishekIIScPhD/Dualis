@@ -1,0 +1,32 @@
+2
+emplace 7 6
+0 v
+1 countvo
+2 countvt
+3 len
+4 countvo1
+5 countvt1
+6 len1
+len1 - len
+len - len1
+countvo1 - countvo
+countvo - countvo1
+countvt1 - countvt
+countvt - countvt1
+
+inv1 6 9
+0 i
+1 N
+2 v
+3 countvo
+4 countvt
+5 len
+i - len
+len - i
+i - countvo
+countvo - i
+len - countvo
+countvo - len
+N - i
+N - len
+N - countvo

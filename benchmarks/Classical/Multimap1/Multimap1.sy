@@ -1,0 +1,20 @@
+(set-logic LIA)
+
+(synth-fun emplace ((k Int) (v Int) (countko Int) (len Int) (countko1 Int) (len1 Int)) Bool ((Start Bool) (Expr Int)) ((Start Bool ((<= Expr Expr)(>= Expr Expr)(= Expr Expr)(and Start Start)(or Start Start)(not Start)))(Expr Int ((+ Expr Expr)(- Expr Expr) k v countko len countko1 len1))))
+(synth-fun inv1 ((i Int) (N Int) (countko Int) (len Int)) Bool ((Start Bool) (Expr Int)) ((Start Bool ((<= Expr Expr)(>= Expr Expr)(= Expr Expr)(and Start Start)(or Start Start)(not Start)))(Expr Int ((+ Expr Expr)(- Expr Expr) i N countko len))))
+
+(declare-var N Int)
+(declare-var i Int)
+(declare-var i1 Int)
+(declare-var len Int)
+(declare-var len1 Int)
+(declare-var countko Int)
+(declare-var countko1 Int)
+(declare-var k Int)
+(declare-var v Int)
+
+(constraint (=> (and (> N 0) (= i 0) (= len 0) (= countko 0)) (inv1 i N countko len)))
+(constraint (=> (and (inv1 i N countko len) (< i N) (= k 1) (emplace k v countko len countko1 len1) (= i1 (+ i 1))) (inv1 i1 N countko1 len1)))
+(constraint (=> (and (inv1 i N countko len) (not (< i N))) (= countko N)))
+
+(check-synth)

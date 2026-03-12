@@ -1,0 +1,76 @@
+inv1 6 9
+0 i
+1 N
+2 len
+3 min
+4 max
+5 kveq
+i - N
+N - i
+i - len
+len - i
+i - max
+max - i
+len - max
+max - len
+len - max + min
+
+inv2 6 9
+0 i
+1 N
+2 len
+3 min
+4 max
+5 kveq
+i - N
+N - i
+i - len
+len - i
+i - max
+max - i
+len - max
+max - len
+len - max + min
+
+insert 10 16
+0 k
+1 v
+2 len
+3 min
+4 max
+5 kveq
+6 len1
+7 min1
+8 max1
+9 kveq1
+len1 - len
+len - len1
+min1 - min
+min - min1
+max1 - max
+max - max1
+v - k
+k - v
+k - min
+min - k
+k - max
+max - k
+max1 - k
+k - max1
+kveq - kveq1
+kveq1 - kveq
+
+find 6 7
+0 k
+1 len
+2 min
+3 max
+4 kveq
+5 ret1
+ret1 - k
+k - ret1
+max - k
+k - max
+min - k
+k - min
+len - max + min

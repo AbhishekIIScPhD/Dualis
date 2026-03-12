@@ -1,0 +1,18 @@
+(declare-var len Int)
+(declare-var val Int)
+(declare-var len1 Int)
+(declare-var min Int)
+(declare-var min1 Int)
+(declare-var max Int)
+(declare-var max1 Int)
+(declare-rel push (Int Int Int Int Int Int Int))
+(declare-rel inv (Int Int Int))
+(declare-rel fail ())
+(define-fun MAX () Int 128)
+(define-fun MIN () Int -129)
+
+(rule (=> (and (= len 0) (= min MAX) (= max MIN)) (inv len min max)))
+(rule (=> (and (inv len min max) (= val 0) (push val min len max min1 len1 max1)) (inv len1 min1 max1)))
+(rule (=> (and (inv len min max) (not (or (= len 0) (and (= min 0) (= max 0))))) fail))
+
+(query fail :print-certificate true)
