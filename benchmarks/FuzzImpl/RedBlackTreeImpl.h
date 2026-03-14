@@ -259,11 +259,6 @@ public:
     }
      
     void insert(int key) {
-        
-        
-        
-
-        
         Node *z = new Node(key);
         z->left = NIL;
         z->right = NIL;

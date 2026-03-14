@@ -6,12 +6,9 @@ import time
 import argparse
 import re
 
-import ProcessSpecs as pspec
+import processspecs as pspec
 
 class BasePipeline:
-    """
-    A base class containing the shared logic for all verification pipelines.
-    """
     def __init__(self, benchmark_name, mode):
         print(f"Initializing pipeline for benchmark: '{benchmark_name}'")
         self.benchmark_name = benchmark_name
@@ -42,7 +39,7 @@ class BasePipeline:
             base_benchmarks_path, "working_temp", self.benchmark_name
         )
 
-        self.logs_path = os.path.join(file_dir, "../Logs")
+        self.logs_path = os.path.join(file_dir, "../logs")
 
         self.chc_file_original = self._get_path(f"{self.benchmark_name}.smt2")
         self.working_chc_file = os.path.join(
@@ -65,7 +62,7 @@ class BasePipeline:
 
         self.HI_TIMEOUT = 1000
         self.CVC5_TIMEOUT = 1000
-        self.TIMEOUT = 10 # Renamed from RC_TIMEOUT
+        self.TIMEOUT = 10
 
         self.mappings_valid = self._load_and_validate_attribute_mappings()
 
@@ -81,10 +78,6 @@ class BasePipeline:
         raise NotImplementedError("Subclasses must implement '_convert_ce'")
 
     def _run_fuzzing_and_convert(self, specs_map):
-        """
-        Single instance function to handle writing specs to the harness,
-        running the fuzzer, and processing counterexamples.
-        """
         if self.contract_type == 'classical':
             for relation in specs_map.keys():
                 if relation.startswith(("inv", "valid")): continue
@@ -185,18 +178,18 @@ class BasePipeline:
                         relation_name = match.group(2)
                     elif self.contract_type == "classical":
                         relation_name = harness_filename.replace("_fuzz.cpp", "")
-                        spec_content = specs_to_write.get(relation_name, "false")
+                    spec_content = specs_to_write.get(relation_name, "false")
                     if self.contract_type == "contextual":
                         new_line = f"{indentation}bool expr_{relation_name} = {spec_content};\n"
                     elif self.contract_type == "classical":
                         new_line = f"{indentation}bool expr = {spec_content};\n"
-                        updated_lines.append(new_line)
+                    updated_lines.append(new_line)
                 else:
                     updated_lines.append(line)
 
             with open(working_harness_file, 'w') as f:
                 f.writelines(updated_lines)
-                print(f"      -> Successfully created working copy '{working_harness_file}'.")
+            print(f"      -> Successfully created working copy '{working_harness_file}'.")
         except Exception as e:
             print(f"      -> ERROR: Failed to read/write harness file: {e}")
 
@@ -391,7 +384,7 @@ class HornICEPipeline(BasePipeline):
                 f.write('\n')
                 for new_rule in self.ce_rules:
                     if new_rule not in self.rules: f.write(f"{new_rule}\n")
-                    f.write('\n')
+                f.write('\n')
                 for item in self.rules: f.write(f"{item}\n")
                 f.write('\n')
                 for item in self.queries: f.write(f"{item}\n")
@@ -457,10 +450,10 @@ class HornICEPipeline(BasePipeline):
                     rule = "(rule (=> (and"
                     for i in range(len(ce_vars)):
                         rule += f" (= {ce_vars[i]} {ce_vals[i]})"
-                        rule += f") ({relation_from_file}"
+                    rule += f") ({relation_from_file}"
                     for var in ce_vars:
                         rule += f" {var}"
-                        rule += ")))"
+                    rule += ")))"
 
                     if rule not in self.ce_rules:
                         self.ce_rules.append(rule)
@@ -518,8 +511,8 @@ class HornICEPipeline(BasePipeline):
                             content_lines.append(f"{i} {var}")
                         for expr in exprs:
                             content_lines.append(expr)
-                            f.write("\n".join(content_lines))
-                            command.append(temp_der_attrs_file)
+                    f.write("\n".join(content_lines))
+                command.append(temp_der_attrs_file)
             except Exception as e:
                 print(f"      -> FATAL ERROR: Could not create temporary Attributes.txt: {e}")
                 return False
@@ -532,7 +525,7 @@ class HornICEPipeline(BasePipeline):
         try:
             with open(log_path, 'w') as log_file:
                 process = subprocess.Popen(command, stdout=log_file, stderr=log_file, text=True)
-                process.communicate(timeout=self.HI_TIMEOUT)
+            process.communicate(timeout=self.HI_TIMEOUT)
 
             if process.returncode == 0:
                 print(f"   -> {process_name} completed successfully.")
@@ -577,7 +570,7 @@ class HornICEPipeline(BasePipeline):
                 else:
                     print("   -> [FINAL VERIFICATION] Running 15-minute deep fuzzing phase...")
                     self.TIMEOUT = 900
-                    print (f"TIMEOUT : {self.TIMEOUT}")
+                print (f"TIMEOUT : {self.TIMEOUT}")
 
 
                 if not self._parse_chc_file(): return
@@ -601,8 +594,8 @@ class HornICEPipeline(BasePipeline):
                     if not is_final_phase:
                         print("   -> Short fuzzing converged. Stepping up to 15-minute deep fuzzing.")
                         is_final_phase = True
-                        shutil.copy(self.new_sygus_file, self.old_sygus_file)
-                        shutil.copy(self.new_sygus_file, self.working_sygus_file)
+                        shutil.copy(self.new_chc_file, self.old_chc_file)
+                        shutil.copy(self.new_chc_file, self.working_chc_file)
                         continue
                     else:
                         print("   -> 15-minute deep fuzzing converged. Pipeline complete.")
@@ -611,15 +604,16 @@ class HornICEPipeline(BasePipeline):
                     if is_final_phase:
                         print("   -> Deep fuzzing found a counterexample! Reverting to rapid learning.")
                         is_final_phase = False
-                    break
+                        self.TIMEOUT = 900
 
                 shutil.copy(self.new_chc_file, self.old_chc_file)
                 shutil.copy(self.new_chc_file, self.working_chc_file)
 
         finally:
             print("\n" + "="*20 + " Finalizing Pipeline " + "="*20)
-            if os.path.isdir(self.working_dir):
-                print("   -> Temporary working directory and files cleaned up.")
+            # if os.path.isdir(self.working_dir):
+            #     shutil.rmtree(self.working_dir)
+            # print("   -> Temporary working directory and files cleaned up.")
 
         print("\n" + "="*22 + " Pipeline Finished " + "="*21)
         print(f"Total External Iterations: {self.external_iteration_count}")
@@ -741,7 +735,7 @@ class CVC5Pipeline(BasePipeline):
                 f.write('\n')
                 for new_constraint in self.ce_constraints:
                     if new_constraint not in self.constraints: f.write(f"{new_constraint}\n")
-                    f.write('\n')
+                f.write('\n')
                 for item in self.constraints: f.write(f"{item}\n")
                 f.write('\n')
                 for item in self.goal: f.write(f"{item}\n")
@@ -815,7 +809,7 @@ class CVC5Pipeline(BasePipeline):
             if process.returncode == 0:
                 with open(output_genspec_path, 'w') as f:
                     f.write(stdout)
-                    print(f"   -> {process_name} completed successfully.")
+                print(f"   -> {process_name} completed successfully.")
                 return True
             else:
                 print(f"   -> ERROR: {process_name} failed with exit code {process.returncode}.")
@@ -851,7 +845,7 @@ class CVC5Pipeline(BasePipeline):
                 else:
                     print("   -> [FINAL VERIFICATION] Running 15-minute deep fuzzing phase...")
                     self.TIMEOUT = 900
-                    print (f"TIMEOUT : {self.TIMEOUT}")
+                print (f"TIMEOUT : {self.TIMEOUT}")
 
                 if not self._parse_sygus_file(): return
                 if not self._run_cvc5(): break
@@ -891,9 +885,9 @@ class CVC5Pipeline(BasePipeline):
 
         finally:
             print("\n" + "="*20 + " Finalizing Pipeline " + "="*20)
-            if os.path.isdir(self.working_dir):
-                print("Not removing tree")
-                print("   -> Temporary working directory and files cleaned up.")
+            # if os.path.isdir(self.working_dir):
+            #     shutil.rmtree(self.working_dir)
+            # print("   -> Temporary working directory and files cleaned up.")
 
         print("\n" + "="*22 + " Pipeline Finished " + "="*21)
         print(f"Total External Iterations: {self.external_iteration_count}")

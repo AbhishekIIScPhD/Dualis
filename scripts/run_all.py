@@ -6,10 +6,6 @@ import time
 import sys
 
 def run_benchmark_pipeline(mode, benchmark):
-    """
-    A single worker's task: runs the full VMT pipeline for one benchmark
-    and redirects all its output to a dedicated log file.
-    """
     start_time = time.time()
     pid = os.getpid()
     print(
@@ -59,10 +55,6 @@ def run_benchmark_pipeline(mode, benchmark):
 
 
 def main():
-    """
-    Parses arguments and orchestrates running the benchmark pipelines,
-    either for a single benchmark or all of them in parallel.
-    """
     print("=" * 43)
     print(" Running Benchmarks in Parallel")
     print("=" * 43 + "\n")
@@ -71,13 +63,13 @@ def main():
         description="Run benchmark pipelines in parallel.",
         formatter_class=argparse.RawTextHelpFormatter,
         epilog="""\
-Example usage:
-  Run a single benchmark (e.g., 'Stack'):
-    python3 %(prog)s ClassicalHornICE Stack
+        Example usage:
+        Run a single benchmark (e.g., 'Stack'):
+        python3 %(prog)s ClassicalHornICE Stack
 
-  Run all benchmarks using 4 processes:
-    python3 %(prog)s ContextualLLMHornICE all -p 4
-"""
+        Run all benchmarks using 4 processes:
+        python3 %(prog)s ContextualLLMHornICE all -p 4
+        """
     )
     parser.add_argument(
         "mode",
