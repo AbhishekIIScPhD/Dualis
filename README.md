@@ -8,13 +8,23 @@ functions correctly. This initial phase is designed to take less than
 ### 1. Prerequisites
 * **Docker:** Ensure Docker is installed and running on your host
   machine.
-* **OS Compatibility:** Compatible with standard Linux.
+* **OS Compatibility:** Compatible with Linux.
 
 ### 2. Environment Setup
-Navigate to the root directory of the artifact (where the `Dockerfile`
+Navigate to the directory (Dualis) of the artifact (where the `Dockerfile`
 is located) and build the image:
 
 ```bash
-docker build -t verification-pipeline .
+docker image build -t dualis:latest .
+```
+and run the image :
+
+```bash
+docker run --rm -it dualis:latest
+```
+
+### 3. Running Basic Tests
+
+
 
 ## Step-by-Step instructions for evaluations

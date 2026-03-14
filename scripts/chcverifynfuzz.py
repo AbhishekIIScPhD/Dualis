@@ -5,6 +5,7 @@ import shutil
 import time
 import argparse
 import re
+import signal
 
 import processspecs as pspec
 
@@ -62,6 +63,7 @@ class BasePipeline:
 
         self.HI_TIMEOUT = 1000
         self.CVC5_TIMEOUT = 1000
+        self.SEAHORN_TIMEOUT = 1000
         self.TIMEOUT = 10
 
         self.mappings_valid = self._load_and_validate_attribute_mappings()
@@ -796,30 +798,35 @@ class CVC5Pipeline(BasePipeline):
             "--sygus-add-const-grammar",
             self.working_sygus_file
         ]
+        log_path = os.path.join(self.internal_log_dir, f"iter_{self.external_iteration_count}.log")
+        print(f"      -> Logging {process_name} output to {os.path.basename(log_path)}")
+
 
         success = False
         process = None
         try:
             with open(log_path, 'w') as log_file:
-                process = subprocess.Popen(command, stdout=log_file, stderr=log_file, text=True)
-            process.communicate(timeout=self.HI_TIMEOUT)
+                process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            stdout, stderr = process.communicate(timeout=self.HI_TIMEOUT)
 
             if process.returncode == 0:
+                with open(output_genspec_path, 'w') as f:
+                    f.write(stdout)
                 print(f"   -> {process_name} completed successfully.")
                 success = True
             else:
                 print(f"   -> ERROR: {process_name} failed with exit code {process.returncode}.")
+                print(f"      -> Error Output:\n{stderr}")
+                success = False        
         except subprocess.TimeoutExpired:
             print(f"   -> ERROR: {process_name} timed out. Terminating.")
             if process:
                 process.kill()
                 process.communicate()
+            success = False
         except Exception as e:
             print(f"   -> FATAL ERROR during {process_name}: {e}")
-        finally:
-            if "der" in os.path.basename(self.chc_verifier_path) and os.path.exists(temp_der_attrs_file):
-                os.remove(temp_der_attrs_file)
-
+            success = False
         return success
 
     def run(self):
@@ -882,9 +889,9 @@ class CVC5Pipeline(BasePipeline):
 
         finally:
             print("\n" + "="*20 + " Finalizing Pipeline " + "="*20)
-            if os.path.isdir(self.working_dir):
-                shutil.rmtree(self.working_dir)
-            print("   -> Temporary working directory and files cleaned up.")
+            # if os.path.isdir(self.working_dir):
+            #     shutil.rmtree(self.working_dir)
+            # print("   -> Temporary working directory and files cleaned up.")
 
         print("\n" + "="*22 + " Pipeline Finished " + "="*21)
         print(f"Total External Iterations: {self.external_iteration_count}")
@@ -911,14 +918,17 @@ class CVC5Pipeline(BasePipeline):
                             content = f.read().strip()
                             if content:
                                 found_any = True
-            if not found_any: print("  (None)")
+            if not found_any:
+                print("  (None)")
         elif self.contract_type == 'contextual':
             ce_file = os.path.join(self.working_dir, f"{self.benchmark_name}ContCE.txt")
             if os.path.exists(ce_file):
                 with open(ce_file, "r") as f:
                     content = f.read().strip()
-                    else: print("  (None)")
-            else: print("  (None)")
+                    if content:
+                        print(content)
+                    else:
+                        print("  (None)")
 
         print("\n--- Updated SYGUS (for next iteration) ---")
         if os.path.exists(self.new_sygus_file):
@@ -942,7 +952,7 @@ class SeaHornPipeline(BasePipeline):
 
     def _run_seahorn(self):
         process_name = f"SeaHorn({self.benchmark_name})"
-        print(f"   -> Starting {process_name} with a {self.TIMEOUT}-second timeout...")
+        print(f"   -> Starting {process_name} with a {self.SEAHORN_TIMEOUT}-second timeout...")
 
         if not os.path.exists(self.c_file_path):
             print(f"      -> ERROR: Source file not found at '{self.c_file_path}'.")
@@ -957,8 +967,12 @@ class SeaHornPipeline(BasePipeline):
         ]
 
         try:
-            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            stdout, stderr = process.communicate(timeout=self.TIMEOUT)
+            process = subprocess.Popen(command, 
+                                       stdout=subprocess.PIPE, 
+                                       stderr=subprocess.PIPE, 
+                                       text=True,
+                                       start_new_session=True)
+            stdout, stderr = process.communicate(timeout=self.SEAHORN_TIMEOUT)
 
             with open(self.benchmark_log_file, "w") as b_log:
                 b_log.write(f"Command: {' '.join(command)}\n\n")
@@ -982,11 +996,14 @@ class SeaHornPipeline(BasePipeline):
         except subprocess.TimeoutExpired:
             print(f"   -> ERROR: {process_name} timed out.")
             if process:
-                process.kill()
+                try:
+                    os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
                 process.communicate()
 
             with open(self.benchmark_log_file, "w") as b_log:
-                b_log.write(f"=== TIMEOUT EXPIRED after {self.TIMEOUT} seconds ===\n")
+                b_log.write(f"=== TIMEOUT EXPIRED after {self.SEAHORN_TIMEOUT} seconds ===\n")
                 
             return "TIMEOUT"
         except Exception as e:

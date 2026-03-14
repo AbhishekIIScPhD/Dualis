@@ -1,7 +1,5 @@
 FROM seahorn/seahorn-llvm14:nightly AS seahorn_base
 
-FROM aflplusplus/aflplusplus:latest
-
 USER root
 
 RUN apt-get update && apt-get install -y \
@@ -12,8 +10,12 @@ RUN apt-get update && apt-get install -y \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=seahorn_base /seahorn /seahorn
-ENV PATH="/seahorn/build/run/bin:${PATH}"
+WORKDIR /opt
+RUN git clone https://github.com/AFLplusplus/AFLplusplus.git && \
+    cd AFLplusplus && \
+    make source-only
+
+ENV PATH="/opt/AFLplusplus:/home/usea/seahorn/bin:${PATH}"
 
 COPY cvc5-files/bin/ /usr/local/bin/
 COPY cvc5-files/include/ /usr/local/include/
