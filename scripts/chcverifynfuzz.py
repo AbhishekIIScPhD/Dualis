@@ -10,10 +10,12 @@ import signal
 import processspecs as pspec
 
 class BasePipeline:
-    def __init__(self, benchmark_name, mode):
+    def __init__(self, benchmark_name, mode, deep_fuzz=False, test_only=False):
         print(f"Initializing pipeline for benchmark: '{benchmark_name}'")
         self.benchmark_name = benchmark_name
         self.mode = mode
+        self.deep_fuzz = deep_fuzz
+        self.test_only = test_only
 
         self.contract_type = 'classical' if 'classical' in self.mode.lower() else 'contextual'
 
@@ -37,9 +39,8 @@ class BasePipeline:
         )
 
         self.working_dir = os.path.join(
-            base_benchmarks_path, "working_temp", self.benchmark_name
+            base_benchmarks_path, f"{self.mode}_working_temp", self.benchmark_name
         )
-
         self.logs_path = os.path.join(file_dir, "../logs")
 
         self.chc_file_original = self._get_path(f"{self.benchmark_name}.smt2")
@@ -226,7 +227,10 @@ class BasePipeline:
         ]
 
         try:
-            build_process = subprocess.Popen(build_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            build_process = subprocess.Popen(build_cmd,
+                                             stdout=subprocess.PIPE,
+                                             stderr=subprocess.PIPE,
+                                             text=True)
             build_stdout, build_stderr = build_process.communicate(timeout=120)
             if build_process.returncode != 0:
                 print(f"   -> ERROR: Failed to build AFL binary: {build_stderr}")
@@ -261,12 +265,16 @@ class BasePipeline:
 
         process = None
         try:
-            process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, env = env, text=True)
-            _, stderr = process.communicate(timeout=self.TIMEOUT)
+            process = subprocess.Popen(command,
+                                       stdout=subprocess.DEVNULL,
+                                       stderr=subprocess.PIPE,
+                                       env = env,
+                                       text=True)
+            _, stderr = process.communicate(timeout=self.TIMEOUT + 5)
 
             if process.returncode == 0:
                 print(f"   -> {process_name} completed successfully.")
-                return True
+                return self._check_fuzz_crashes(output_dir, executable, ce_filename)
             else:
                 print(f"   -> ERROR: {process_name} failed with exit code {process.returncode}.")
                 if stderr:
@@ -283,8 +291,11 @@ class BasePipeline:
             return False
 
     def _check_fuzz_crashes(self, output_dir, executable, ce_filename=None):
-        print("check fuzz crashes")
+        print("   -> Checking fuzzing outputs for counterexamples...")
         dirs = ["crashes", "queue", "hangs"]
+
+        ce_filepath = os.path.join(self.working_dir, ce_filename) if ce_filename else None
+
         for fuzz_dir in dirs:
             print (f"Checking {fuzz_dir}")
             crashes_dir = os.path.join(output_dir, "default", fuzz_dir)
@@ -304,9 +315,13 @@ class BasePipeline:
                     env.update({"FUZZING":"0"})
                     run_cmd = f'{executable} {os.path.join(self.working_dir, ce_filename)} < {crash_path}'
                     with open(crash_path, 'rb') as f:
-                        crash_data = f.read()
+                        process = subprocess.Popen(run_cmd,
+                                               shell=True,
+                                               stdin=f,
+                                               stdout=subprocess.DEVNULL,
+                                               stderr=subprocess.PIPE,
+                                               env=env)
 
-                    process = subprocess.Popen(run_cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
                     _, stderr = process.communicate(timeout=5)
 
                     if process.returncode != 0:
@@ -319,6 +334,41 @@ class BasePipeline:
 
         return True
 
+    def _run_test_only(self):
+        print("\n" + "="*20 + " RUNNING TEST-ONLY MODE " + "="*20)
+        if not os.path.exists(self.working_dir):
+            print(f"   -> ERROR: Working directory not found: {self.working_dir}")
+            print(f"   -> Please run a normal pipeline first to generate the executables.")
+            return False
+
+        self.TIMEOUT = 900
+        print(f"   -> Deep fuzzing timeout set to {self.TIMEOUT} seconds.")
+
+        harnesses = []
+        for file in os.listdir(self.working_dir):
+            if file.endswith(f"{self.harness_ext}.cpp"):
+                harnesses.append(file[:-4])
+
+        if not harnesses:
+            print(f"   -> ERROR: No harness files (*{self.harness_ext}.cpp) found in {self.working_dir}.")
+            return False
+
+        print(f"   -> Found {len(harnesses)} harness(es) to test: {', '.join(harnesses)}")
+
+        for harness_basename in harnesses:
+            if self.contract_type == 'classical':
+                relation = harness_basename.replace(self.harness_ext, "")
+                ce_file = f"{relation}CE.txt"
+            else:
+                relation = self.benchmark_name
+                ce_file = f"{harness_basename}CE.txt"
+
+            self._run_fuzz(harness_basename, ce_file)
+            self._convert_ce(relation, ce_file)
+
+        print("\n" + "="*22 + " Test-Only Finished " + "="*21)
+        return True    
+
     def _dump_iteration_artifacts(self):
         raise NotImplementedError("Subclasses must implement the 'dump' method.")
 
@@ -327,8 +377,8 @@ class BasePipeline:
 
 
 class HornICEPipeline(BasePipeline):
-    def __init__(self, benchmark_name, mode):
-        super().__init__(benchmark_name, mode)
+    def __init__(self, benchmark_name, mode, deep_fuzz=False, test_only=False):
+        super().__init__(benchmark_name, mode, deep_fuzz, test_only)
         self.chc_file_original = self._get_path(f"{self.benchmark_name}.smt2")
         self.working_chc_file = os.path.join(
             self.working_dir, f"{self.benchmark_name}.smt2"
@@ -549,6 +599,10 @@ class HornICEPipeline(BasePipeline):
         return success
 
     def run(self):
+        if self.test_only:
+            self._run_test_only()
+            return
+
         if not os.path.exists(self.chc_file_original):
             print(f"FATAL ERROR: No .smt2 file found for benchmark '{self.benchmark_name}'")
             return
@@ -589,7 +643,7 @@ class HornICEPipeline(BasePipeline):
                 self._dump_iteration_artifacts()
 
                 if not self._specs_changed(): 
-                    if not is_final_phase:
+                    if self.deep_fuzz and not is_final_phase:
                         print("   -> Short fuzzing converged. Stepping up to 15-minute deep fuzzing.")
                         is_final_phase = True
                         shutil.copy(self.new_chc_file, self.old_chc_file)
@@ -601,17 +655,17 @@ class HornICEPipeline(BasePipeline):
                 else:
                     if is_final_phase:
                         print("   -> Deep fuzzing found a counterexample! Reverting to rapid learning.")
-                        is_final_phase = False
-                        self.TIMEOUT = 900
+                        # is_final_phase = False
+                        # self.TIMEOUT = 900
 
                 shutil.copy(self.new_chc_file, self.old_chc_file)
                 shutil.copy(self.new_chc_file, self.working_chc_file)
 
         finally:
             print("\n" + "="*20 + " Finalizing Pipeline " + "="*20)
-            if os.path.isdir(self.working_dir):
-                shutil.rmtree(self.working_dir)
-            print("   -> Temporary working directory and files cleaned up.")
+            # if os.path.isdir(self.working_dir):
+            #    shutil.rmtree(self.working_dir)
+            # print("   -> Temporary working directory and files cleaned up.")
 
         print("\n" + "="*22 + " Pipeline Finished " + "="*21)
         print(f"Total External Iterations: {self.external_iteration_count}")
@@ -666,8 +720,8 @@ class HornICEPipeline(BasePipeline):
         print("=" * 62)
 
 class CVC5Pipeline(BasePipeline):
-    def __init__(self, benchmark_name, mode):
-        super().__init__(benchmark_name, mode)
+    def __init__(self, benchmark_name, mode, deep_fuzz=False, test_only=False):
+        super().__init__(benchmark_name, mode, deep_fuzz, test_only)
         self.CVC5_TIMEOUT = 1000
         self.sygus_original_file = self._get_path(f"{self.benchmark_name}.sy")
         self.working_sygus_file = os.path.join(
@@ -830,6 +884,10 @@ class CVC5Pipeline(BasePipeline):
         return success
 
     def run(self):
+        if self.test_only:
+            self._run_test_only()
+            return
+
         if not os.path.exists(self.sygus_original_file):
             print(f"FATAL ERROR: No SyGuS (.sy) file found for benchmark '{self.benchmark_name}'")
             return
@@ -869,7 +927,7 @@ class CVC5Pipeline(BasePipeline):
                 self._dump_iteration_artifacts()
 
                 if not self._specs_changed():
-                    if not is_final_phase:
+                    if self.deep_fuzz and not is_final_phase:
                         print("   -> Short fuzzing converged. Stepping up to 15-minute deep fuzzing.")
                         is_final_phase = True
                         shutil.copy(self.new_sygus_file, self.old_sygus_file)
@@ -1043,6 +1101,9 @@ def main():
         help="The execution mode for the pipeline."
     )
     parser.add_argument("benchmark", help="The name of the benchmark to run.")
+    parser.add_argument("--deep-fuzz", action="store_true", help="Run 15-minute deep fuzzing explicitly after convergence.")
+    parser.add_argument("--test-only", action="store_true", help="Skip learning and only run 15-minute fuzzing on existing executables.")
+    
     args = parser.parse_args()
 
     print("\n" + "="*40)
@@ -1052,12 +1113,16 @@ def main():
     if 'hornice' in args.mode.lower():
         pipeline = HornICEPipeline(
             benchmark_name=args.benchmark,
-            mode=args.mode
+            mode=args.mode,
+            deep_fuzz=args.deep_fuzz,
+            test_only=args.test_only
         )
     elif 'cvc5' in args.mode.lower():
         pipeline = CVC5Pipeline(
             benchmark_name=args.benchmark,
-            mode=args.mode
+            mode=args.mode,
+            deep_fuzz=args.deep_fuzz,
+            test_only=args.test_only
         )
     elif 'seahorn' in args.mode.lower():
         pipeline = SeaHornPipeline(
